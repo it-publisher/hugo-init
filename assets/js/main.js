@@ -10,13 +10,13 @@
       el.textContent = isDark ? '☀️' : '🌙';
     });
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
-      btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('aria-label', isDark ? 'Светлая тема' : 'Тёмная тема');
     });
   }
 
   function toggleTheme() {
     var isDark = document.documentElement.classList.toggle('dark');
-    try { localStorage.setItem('nimbus-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+    try { localStorage.setItem('init-theme', isDark ? 'dark' : 'light'); } catch (e) {}
     applyThemeIcon();
   }
 
@@ -75,6 +75,29 @@
     }
   });
 
+  /* Копирует текст и показывает результат на самой кнопке; при ошибке не молчит */
+  function copyText(btn, text) {
+    // Исходную надпись запоминаем один раз: иначе двойной щелчок «запомнил» бы «Скопировано»
+    if (!btn.dataset.idleLabel) btn.dataset.idleLabel = btn.textContent;
+    var idleLabel = btn.dataset.idleLabel;
+    function showResult(label, isSuccess) {
+      btn.textContent = label;
+      btn.classList.toggle('is-copied', isSuccess);
+      clearTimeout(btn.resetTimer);
+      btn.resetTimer = setTimeout(function () {
+        btn.textContent = idleLabel;
+        btn.classList.remove('is-copied');
+      }, 1500);
+    }
+    navigator.clipboard.writeText(text).then(function () {
+      showResult('Скопировано', true);
+    }).catch(function (error) {
+      // Буфер обмена недоступен (нет HTTPS, запрет браузера)
+      console.error('Copy failed:', error);
+      showResult('Не удалось', false);
+    });
+  }
+
   /* ---------------------------------------------------------------
      Copy-to-clipboard buttons on code blocks
      Chroma (Hugo's syntax highlighter) wraps each fenced code block in
@@ -83,31 +106,47 @@
   ------------------------------------------------------------------ */
   if (document.body.dataset.copyCodeButton !== 'false') {
     document.querySelectorAll('.highlight').forEach(function (block) {
-      if (block.querySelector('.copy-code-btn')) return; // already added
       var codeEl = block.querySelector('pre code') || block.querySelector('pre');
       if (!codeEl) return;
 
-      block.style.position = 'relative';
+      // Кнопку кладём во внешнюю обёртку: .highlight прокручивается по горизонтали,
+      // и на длинной команде кнопка уезжала бы вместе с текстом
+      var host = block.closest('.code-block') || block;
+      if (host.querySelector('.copy-code-btn')) return;
+      host.style.position = 'relative';
 
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'copy-code-btn';
-      btn.setAttribute('aria-label', 'Copy code to clipboard');
-      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', 'Скопировать код');
+      btn.textContent = 'Копировать';
 
       btn.addEventListener('click', function () {
-        var text = codeEl.innerText;
-        navigator.clipboard.writeText(text).then(function () {
-          btn.textContent = 'Copied!';
-          btn.classList.add('is-copied');
-          setTimeout(function () {
-            btn.textContent = 'Copy';
-            btn.classList.remove('is-copied');
-          }, 1500);
-        });
+        copyText(btn, codeEl.innerText);
       });
 
-      block.appendChild(btn);
+      host.appendChild(btn);
     });
   }
+
+  /* ---------------------------------------------------------------
+     Системное меню «Поделиться» (Web Share API) — есть в мобильных браузерах
+  ------------------------------------------------------------------ */
+  if (navigator.share) {
+    document.querySelectorAll('[data-native-share]').forEach(function (btn) {
+      btn.hidden = false;
+      btn.addEventListener('click', function () {
+        navigator.share({ title: btn.dataset.title, url: btn.dataset.url }).catch(function (error) {
+          // AbortError — читатель просто закрыл меню, это не ошибка
+          if (error.name !== 'AbortError') console.error('Share failed:', error);
+        });
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-copy-url]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      copyText(btn, btn.dataset.copyUrl);
+    });
+  });
 })();

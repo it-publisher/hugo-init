@@ -1,0 +1,9 @@
+{{- /* Каждый блок кода — через Chroma, даже без языка: main.js вешает кнопку
+       «Копировать» на .highlight, а голый <pre> без языка её не получал */ -}}
+{{- $lang := .Type }}
+<div class="code-block">
+  {{- with $lang }}
+  <div class="code-block-lang">{{ . }}</div>
+  {{- end }}
+  {{ transform.Highlight .Inner (or $lang "text") .Options }}
+</div>

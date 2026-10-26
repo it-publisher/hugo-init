@@ -28,13 +28,13 @@
     border-color: rgb(55 65 81);
     color: white;
   }
-  #{{ $id }} .code-tabs-panels > .highlight {
+  #{{ $id }} .code-tabs-panels > .code-block {
     display: none;
     margin: 0 !important;
     border: none !important;
     border-radius: 0 !important;
   }
-  #{{ $id }} .code-tabs-panels > .highlight.is-active {
+  #{{ $id }} .code-tabs-panels > .code-block.is-active {
     display: block;
   }
 </style>
@@ -44,7 +44,7 @@
   var root = document.getElementById("{{ $id }}");
   if (!root) return;
   var buttons = root.querySelectorAll(".code-tabs-btn");
-  var panels = root.querySelectorAll(".code-tabs-panels > .highlight");
+  var panels = root.querySelectorAll(".code-tabs-panels > .code-block");
   if (panels.length) panels[0].classList.add("is-active");
   buttons.forEach(function (btn) {
     btn.addEventListener("click", function () {
