@@ -1,0 +1,6 @@
+{{- /* Обложка: поле cover во фронтматтере, иначе первая картинка заметки */ -}}
+{{- $cover := .Params.cover | default "" }}
+{{- if not $cover }}
+  {{- with findRESubmatch `<img[^>]*\ssrc="([^"]+)"` .Content 1 }}{{ $cover = index (index . 0) 1 }}{{ end }}
+{{- end }}
+{{- return $cover }}

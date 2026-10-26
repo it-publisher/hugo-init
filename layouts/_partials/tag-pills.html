@@ -1,0 +1,11 @@
+{{- /* @context terms — список тегов, current — текущий тег (необязательно) */ -}}
+{{- $current := .current }}
+<div class="flex flex-wrap gap-2">
+  {{- range .terms }}
+  {{- if eq . $current }}
+  <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-600 text-white">{{ .LinkTitle }}</span>
+  {{- else }}
+  <a href="{{ .RelPermalink }}" class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ .LinkTitle }}</a>
+  {{- end }}
+  {{- end }}
+</div>

@@ -1,7 +1,16 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ range .Pages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
+{{- $section := site.GetPage (printf "/%s" (strings.TrimSuffix "tags" .Section)) }}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Теги</h1>
+  {{- with $section }}
+  <p class="text-gray-600 dark:text-gray-400 mb-10"><a href="{{ .RelPermalink }}" class="text-primary-600 dark:text-primary-400 hover:underline">{{ .Title }}</a></p>
+  {{- end }}
+  <div class="flex flex-wrap gap-3">
+    {{- range .Data.Terms.ByCount }}
+    <a href="{{ .Page.RelPermalink }}" class="px-3 py-2 rounded-full bg-gray-100 dark:bg-neutral-900 text-gray-700 dark:text-gray-200 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900/40 dark:hover:text-primary-300 transition-colors">
+      {{ .Page.LinkTitle }} <span class="text-gray-500 dark:text-gray-400">{{ .Count }}</span>
+    </a>
+    {{- end }}
+  </div>
+</div>
 {{ end }}

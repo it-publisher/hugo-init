@@ -173,18 +173,35 @@ input:focus-visible,
   font-weight: 500;
   padding: 0.25rem 0.625rem;
   border-radius: 0.375rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: rgb(209 213 219);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgb(255 255 255);
+  color: rgb(55 65 81);
+  border: 1px solid rgb(209 213 219);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s, background-color 0.15s;
 }
-.highlight:hover .copy-code-btn {
+.dark .copy-code-btn {
+  background-color: rgb(38 38 38);
+  color: rgb(209 213 219);
+  border-color: rgb(82 82 82);
+}
+/* Кнопка видна при наведении, при фокусе с клавиатуры и всегда — на сенсорных экранах,
+   где наведения нет (в исходном Nimbus на телефоне её не было видно вовсе) */
+.code-block:hover .copy-code-btn,
+.highlight:hover .copy-code-btn,
+.copy-code-btn:focus-visible {
   opacity: 1;
 }
+@media (hover: none) {
+  .copy-code-btn {
+    opacity: 1;
+  }
+}
 .copy-code-btn:hover {
-  background-color: rgba(255, 255, 255, 0.18);
+  background-color: rgb(243 244 246);
+}
+.dark .copy-code-btn:hover {
+  background-color: rgb(64 64 64);
 }
 .copy-code-btn.is-copied {
   background-color: rgb(22 163 74);
@@ -232,4 +249,136 @@ input:focus-visible,
 }
 .toc > ul {
   padding-left: 0;
+}
+
+/* ===============================================================
+   init: правки поверх Nimbus
+   =============================================================== */
+
+/* Кириллица Inter (fontsource 5.2.6 — та же версия, что латиница темы) */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-cyrillic-400-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-cyrillic-500-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-cyrillic-600-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-cyrillic-700-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* Подпись под картинкой — по центру и мельче текста */
+.prose figure figcaption {
+  text-align: center;
+}
+
+/* Галерея: скрипт gallery.js собирает картинки одного <figure> в ленту.
+   Без JS картинки просто идут одна под другой */
+.gallery-strip {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.gallery-strip::-webkit-scrollbar {
+  display: none;
+}
+.gallery-strip > img {
+  flex: 0 0 100%;
+  margin: 0 !important;
+  scroll-snap-align: center;
+  object-fit: contain;
+  max-height: 80vh;
+}
+.gallery-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+.gallery-controls button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(229 231 235);
+}
+.gallery-controls button:disabled {
+  opacity: 0.3;
+}
+.dark .gallery-controls button {
+  border-color: rgb(64 64 64);
+}
+
+/* Аудио и встроенный плеер — на всю ширину текста */
+.prose audio,
+.prose iframe {
+  width: 100%;
+}
+
+/* Первая картинка заметки как обложка карточки — без «прыжка» вёрстки */
+.post-card-cover {
+  aspect-ratio: 16 / 9;
+}
+
+/* Плагин типографики сам добавляет к цитатам английские кавычки “…”.
+   В русских текстах кавычки уже стоят где нужно — автоматические убираем */
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none;
+}
+
+/* Подпись языка над блоком кода (```bash → «bash») */
+.code-block {
+  margin: 1.5em 0;
+}
+.code-block .highlight {
+  margin: 0;
+}
+/* В Nimbus .highlight (0.875rem) и prose-lg (0.89em) уменьшали шрифт кода дважды — ~12px
+   при тексте 18px. Для заметок с командами делаем читаемые 14px */
+.prose .code-block pre {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.code-block-lang {
+  margin-bottom: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: rgb(107 114 128);
+}
+
+/* Внутри вкладок и diff подпись языка лишняя: там своя шапка (вкладка, имя файла) */
+.code-tabs .code-block,
+.diff-block .code-block {
+  margin: 0;
+}
+.code-tabs .code-block-lang,
+.diff-block .code-block-lang {
+  display: none;
 }

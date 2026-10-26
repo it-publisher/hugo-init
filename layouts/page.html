@@ -1,23 +1,81 @@
 {{ define "main" }}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ .Title }}</h1>
+{{- $section := .Parent }}
+{{- $terms := partial "post-terms.html" . }}
+{{- $hasToc := and site.Params.toc (gt .WordCount 400) (findRE `<h[23]` .Content 1) }}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <nav class="flex mb-6" aria-label="Навигация">
+    <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+      <li><a href="{{ site.Home.RelPermalink }}" class="hover:text-gray-700 dark:hover:text-gray-300">Главная</a></li>
+      <li class="flex items-center">
+        <span class="mx-2">›</span>
+        <a href="{{ $section.RelPermalink }}" class="hover:text-gray-700 dark:hover:text-gray-300">{{ $section.Title }}</a>
+      </li>
+    </ol>
+  </nav>
 
-  {{ if not .Date.IsZero }}
-  <time datetime="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}" class="block text-sm text-gray-500 dark:text-gray-500 mb-8">
-    {{ .Date.Format "January 2, 2006" }}
-  </time>
-  {{ end }}
+  <article>
+    <header class="mb-8">
+      <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">{{ .Title }}</h1>
+      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "2 January 2006" }}</time>
+        <span>{{ i18n "readingTime" .ReadingTime }}</span>
+        {{- with $terms }}{{ partial "tag-pills.html" (dict "terms" .) }}{{ end }}
+      </div>
+    </header>
 
-  <div class="prose prose-lg dark:prose-invert max-w-none">
-    {{ .Content }}
+    {{- if $hasToc }}
+    <div class="xl:hidden bg-gray-50 dark:bg-neutral-900 rounded-lg p-4 mb-8">
+      <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Содержание</h4>
+      <nav class="toc text-sm">{{ .TableOfContents }}</nav>
+    </div>
+    {{- end }}
+
+    <div class="prose prose-lg dark:prose-invert max-w-none">
+      {{ .Content }}
+    </div>
+
+    {{ partial "social-share.html" . }}
+
+    {{- /* В Hugo NextInSection — более ранняя заметка, PrevInSection — более поздняя */}}
+    <nav class="mt-12 pt-8 border-t border-gray-200 dark:border-neutral-800">
+      <div class="flex justify-between gap-6">
+        {{- with .NextInSection }}
+        <a href="{{ .RelPermalink }}" class="flex items-center text-primary-600 dark:text-primary-400 hover:underline">
+          <span class="mr-2">←</span>
+          <div class="text-left">
+            <div class="text-sm text-gray-500 dark:text-gray-400">Ранее</div>
+            <div class="font-medium">{{ .Title }}</div>
+          </div>
+        </a>
+        {{- end }}
+        {{- with .PrevInSection }}
+        <a href="{{ .RelPermalink }}" class="flex items-center text-primary-600 dark:text-primary-400 hover:underline ml-auto">
+          <div class="text-right">
+            <div class="text-sm text-gray-500 dark:text-gray-400">Позднее</div>
+            <div class="font-medium">{{ .Title }}</div>
+          </div>
+          <span class="ml-2">→</span>
+        </a>
+        {{- end }}
+      </div>
+    </nav>
+  </article>
+
+  {{- $related := where (site.RegularPages.Related .) "Section" .Section | first 3 }}
+  {{- with $related }}
+  <div class="mt-16">
+    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Похожие заметки</h3>
+    {{ partial "post-grid.html" . }}
   </div>
-
-  {{ with .Params.tags }}
-  <div class="mt-8 pt-6 border-t border-gray-100 dark:border-neutral-900">
-    {{ partial "terms.html" (dict "taxonomy" "tags" "page" $) }}
-  </div>
-  {{ end }}
-
-  {{ partial "page-git-meta.html" . }}
+  {{- end }}
 </div>
+
+{{- if $hasToc }}
+<div class="hidden xl:block fixed top-32 right-8 w-64">
+  <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-800 p-4">
+    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Содержание</h4>
+    <nav class="toc">{{ .TableOfContents }}</nav>
+  </div>
+</div>
+{{- end }}
 {{ end }}

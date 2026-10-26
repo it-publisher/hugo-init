@@ -1,0 +1,21 @@
+{{- $cover := partial "post-cover.html" . }}
+<article class="flex flex-col rounded-lg border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+  {{- with $cover }}
+  <a href="{{ $.RelPermalink }}">
+    <img src="{{ . | relURL }}" alt="" loading="lazy" class="post-card-cover w-full object-cover">
+  </a>
+  {{- end }}
+  <div class="flex flex-col flex-grow p-6">
+    {{- with partial "post-terms.html" . }}
+    <div class="mb-3">{{ partial "tag-pills.html" (dict "terms" .) }}</div>
+    {{- end }}
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+      <a href="{{ .RelPermalink }}" class="hover:text-primary-600 dark:hover:text-primary-400">{{ .LinkTitle }}</a>
+    </h2>
+    <p class="text-sm text-gray-600 dark:text-gray-400 flex-grow">{{ .Summary | plainify | htmlUnescape | truncate 140 }}</p>
+    <div class="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "2 January 2006" }}</time>
+      <a href="{{ .RelPermalink }}" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Читать &rarr;</a>
+    </div>
+  </div>
+</article>

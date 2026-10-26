@@ -1,9 +1,14 @@
 {{- $description := .Description | default (.Summary | plainify | truncate 160) | default .Site.Params.description -}}
 {{- $title := .Title -}}
 {{- $image := "" -}}
+{{- /* Превью ссылки: images → обложка заметки → аватар из настроек сайта */ -}}
 {{- with .Params.images -}}
   {{- $image = index . 0 -}}
-{{- else -}}
+{{- end -}}
+{{- if and (not $image) .IsPage -}}
+  {{- $image = partial "post-cover.html" . -}}
+{{- end -}}
+{{- if not $image -}}
   {{- with .Site.Params.images -}}
     {{- $image = index . 0 -}}
   {{- end -}}
@@ -22,12 +27,13 @@
 {{ if .IsPage }}
 {{ if not .Date.IsZero }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}
 {{ if not .Lastmod.IsZero }}<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}
-{{ range .Params.tags }}<meta property="article:tag" content="{{ . }}">
+{{ range partial "post-terms.html" . }}<meta property="article:tag" content="{{ .LinkTitle }}">
 {{ end }}
 {{ end }}
 
 <!-- Twitter Card -->
-<meta name="twitter:card" content="{{ .Site.Params.twitter_card | default "summary" }}">
+{{- /* С обложкой — большое превью, с аватаром — маленькое */}}
+<meta name="twitter:card" content="{{ if in site.Params.images $image }}summary{{ else }}summary_large_image{{ end }}">
 <meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" $title site.Title }}{{ end }}">
 <meta name="twitter:description" content="{{ $description }}">
 {{ with $image }}<meta name="twitter:image" content="{{ . | absURL }}">{{ end }}

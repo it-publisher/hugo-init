@@ -1,0 +1,6 @@
+{{- /* Теги заметки из всех таксономий сайта (<раздел>tags) — новый раздел подхватится сам */ -}}
+{{- $terms := slice }}
+{{- range $taxonomy, $_ := site.Taxonomies }}
+  {{- with $.GetTerms $taxonomy }}{{ $terms = $terms | append . }}{{ end }}
+{{- end }}
+{{- return $terms }}

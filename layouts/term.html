@@ -1,7 +1,18 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ range .Pages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
+{{- $section := site.GetPage (printf "/%s" (strings.TrimSuffix "tags" .Section)) }}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  {{- with $section }}
+  <nav class="flex mb-6 text-sm text-gray-500 dark:text-gray-400" aria-label="Навигация">
+    <a href="{{ .RelPermalink }}" class="hover:text-gray-700 dark:hover:text-gray-300">{{ .Title }}</a>
+    <span class="mx-2">›</span>
+    <a href="{{ $.Parent.RelPermalink }}" class="hover:text-gray-700 dark:hover:text-gray-300">Теги</a>
+  </nav>
+  {{- end }}
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ .Title }}</h1>
+  <p class="text-gray-600 dark:text-gray-400 mb-10">{{ i18n "notesCount" (len .Pages) }}</p>
+  {{- with .Content }}
+  <div class="prose dark:prose-invert max-w-none mb-10">{{ . }}</div>
+  {{- end }}
+  {{ partial "post-grid.html" .Pages.ByDate.Reverse }}
+</div>
 {{ end }}

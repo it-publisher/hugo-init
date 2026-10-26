@@ -1,0 +1,11 @@
+[notesCount]
+one = "{{ .Count }} заметка"
+few = "{{ .Count }} заметки"
+many = "{{ .Count }} заметок"
+other = "{{ .Count }} заметки"
+
+[readingTime]
+one = "{{ .Count }} минута чтения"
+few = "{{ .Count }} минуты чтения"
+many = "{{ .Count }} минут чтения"
+other = "{{ .Count }} минуты чтения"
