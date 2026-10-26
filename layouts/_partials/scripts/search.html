@@ -1,9 +1,13 @@
-<!-- Lunr.js Search (vendored locally — no runtime CDN dependency) -->
+<!-- Поиск: Lunr + lunr-languages (русский стемминг), всё лежит локально, без CDN -->
 <script src="{{ "js/vendor/lunr.min.js" | relURL }}"></script>
+<script src="{{ "js/vendor/lunr.stemmer.support.min.js" | relURL }}"></script>
+<script src="{{ "js/vendor/lunr.ru.min.js" | relURL }}"></script>
+<script src="{{ "js/vendor/lunr.multi.min.js" | relURL }}"></script>
 <script>
 (function() {
     'use strict';
 
+    const MAX_RESULTS = 8;
     let searchIndex = null;
     let documents = [];
     let activeIndex = -1;
@@ -11,53 +15,52 @@
     async function initSearch() {
         try {
             const response = await fetch('{{ "index.json" | relURL }}');
-            const data = await response.json();
-            documents = data;
+            if (!response.ok) throw new Error('index.json: ' + response.status);
+            documents = await response.json();
 
             searchIndex = lunr(function() {
+                // Русский и английский разом: только lunr.ru выбрасывал бы латиницу
+                // (Homebrew, OSINT), только английский — не понимал бы русских окончаний
+                this.use(lunr.multiLanguage('en', 'ru'));
                 this.ref('uri');
                 this.field('title', { boost: 10 });
                 this.field('content');
                 this.field('tags', { boost: 5 });
-                this.field('categories', { boost: 5 });
-
-                // Disable stemming so wildcard prefix search (used below for
-                // type-ahead matching) lines up with how terms were indexed.
-                this.pipeline.remove(lunr.stemmer);
-                this.searchPipeline.remove(lunr.stemmer);
 
                 documents.forEach(function(doc) {
                     this.add(doc);
                 }, this);
             });
-
         } catch (error) {
             console.error('Error initializing search:', error);
         }
     }
 
-    function performSearch(query) {
-        if (!searchIndex || !query.trim()) {
-            return [];
-        }
+    function trimToken(str) {
+        return str.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+    }
 
-        try {
-            const results = searchIndex.search(query + '*');
-            return results.map(function(result) {
-                const doc = documents.find(d => d.uri === result.ref);
-                return { ...doc, score: result.score };
-            }).slice(0, 8);
-        } catch (error) {
-            try {
-                const results = searchIndex.search(query);
-                return results.map(function(result) {
-                    const doc = documents.find(d => d.uri === result.ref);
-                    return { ...doc, score: result.score };
-                }).slice(0, 8);
-            } catch (e2) {
-                return [];
-            }
-        }
+    // Каждое слово ищем дважды: по основе («фигма» → «фигм» найдёт «фигме»)
+    // и по началу слова, пока его дописывают («фиг» → «фигма»)
+    function performSearch(query) {
+        if (!searchIndex || !query.trim()) return [];
+
+        const words = lunr.tokenizer(query).map(function (token) {
+            return trimToken(token.toString());
+        }).filter(Boolean);
+        if (!words.length) return [];
+
+        const results = searchIndex.query(function (q) {
+            words.forEach(function (word) {
+                q.term(word, { boost: 10 });
+                q.term(word, { usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING });
+            });
+        });
+
+        return results.slice(0, MAX_RESULTS).map(function (result) {
+            const doc = documents.find(d => d.uri === result.ref);
+            return { ...doc, score: result.score };
+        });
     }
 
     function escapeHtml(str) {
@@ -94,12 +97,12 @@
         activeIndex = -1;
 
         if (results.length === 0) {
-            resultsContainer.innerHTML = '<div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">No results found</div>';
+            resultsContainer.innerHTML = '<div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">Ничего не найдено</div>';
             return;
         }
 
         const html = results.map(function(result) {
-            const title = highlightSearchTerms(escapeHtml(result.title || 'Untitled'), query);
+            const title = highlightSearchTerms(escapeHtml(result.title || 'Без названия'), query);
             const content = escapeHtml(result.content || '');
             const snippet = content.length > 120 ? content.substring(0, 120) + '…' : content;
             const highlightedSnippet = highlightSearchTerms(snippet, query);

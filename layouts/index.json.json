@@ -1,13 +1,8 @@
-{{- $pages := where site.RegularPages "Kind" "page" -}}
-[
-{{- range $index, $page := $pages -}}
-  {{- if $index }},{{ end -}}
-  {
-    "uri": {{ $page.RelPermalink | jsonify }},
-    "title": {{ $page.Title | jsonify }},
-    "content": {{ $page.Plain | jsonify }},
-    "tags": {{ $page.Params.tags | default (slice) | jsonify }},
-    "categories": {{ $page.Params.categories | default (slice) | jsonify }}
-  }
-{{- end -}}
-]
+{{- /* Индекс для поиска: заметки всех разделов с тегами из всех таксономий */ -}}
+{{- $docs := slice }}
+{{- range where site.RegularPages "Kind" "page" }}
+  {{- $tags := slice }}
+  {{- range partial "post-terms.html" . }}{{ $tags = $tags | append .LinkTitle }}{{ end }}
+  {{- $docs = $docs | append (dict "uri" .RelPermalink "title" .Title "content" .Plain "tags" $tags) }}
+{{- end }}
+{{- $docs | jsonify }}
