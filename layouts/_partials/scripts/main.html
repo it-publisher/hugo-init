@@ -1,8 +1,10 @@
-{{ $main := resources.Get "js/main.js" }}
-{{ if hugo.IsProduction }}
-  {{ $main = $main | resources.Minify | resources.Fingerprint }}
-{{ end }}
-<script src="{{ $main.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $main.Data.Integrity }}"{{ end }}></script>
-
-<!-- Copy-to-clipboard buttons on code blocks are added by main.js
-     (vanilla JS, no external library — see the copyCodeButton block there) -->
+{{- $scripts := slice (resources.Get "js/main.js") }}
+{{- /* Скрипт галереи — только там, где в одном <figure> несколько картинок */}}
+{{- if findRE `<figure>\s*<img[^>]*>\s*<img` .Content 1 }}
+  {{- $scripts = $scripts | append (resources.Get "js/gallery.js") }}
+{{- end }}
+{{- range $scripts }}
+  {{- $script := . }}
+  {{- if hugo.IsProduction }}{{ $script = . | resources.Minify | resources.Fingerprint }}{{ end }}
+<script src="{{ $script.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $script.Data.Integrity }}"{{ end }}></script>
+{{- end }}
