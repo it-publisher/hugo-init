@@ -47,7 +47,7 @@ h1, h2, h3 {
    Keyboard affordances
 ------------------------------------------------------------------ */
 kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 /* Visible focus ring for keyboard users navigating with Tab */
@@ -289,6 +289,42 @@ input:focus-visible,
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
+/* Шрифт кода — JetBrains Mono (fontsource 5.3.0): латиница и кириллица, 400 и 700.
+   Лигатуры выключены: в заметках код должен читаться символ в символ (=> а не стрелка) */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-cyrillic-400-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-cyrillic-700-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+code, kbd, pre, samp {
+  font-variant-ligatures: none;
+}
+
 /* Подпись под картинкой — по центру и мельче текста */
 .prose figure figcaption {
   text-align: center;
@@ -368,7 +404,7 @@ input:focus-visible,
 }
 .code-block-lang {
   margin-bottom: 0.25rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: 0.75rem;
   color: rgb(107 114 128);
 }

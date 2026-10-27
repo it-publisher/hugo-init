@@ -1,11 +1,12 @@
-{{- /* @context terms — список тегов, current — текущий тег (необязательно) */ -}}
+{{- /* @context terms — список тегов, current — текущий тег (необязательно), large — крупные теги (необязательно) */ -}}
 {{- $current := .current }}
+{{- $size := cond (.large | default false) "text-sm px-2.5 py-0.5" "text-xs px-2 py-0.5" }}
 <div class="flex flex-wrap gap-2">
   {{- range .terms }}
   {{- if eq . $current }}
-  <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-600 text-white">{{ .LinkTitle }}</span>
+  <span class="{{ $size }} font-medium rounded-full bg-primary-600 text-white">{{ .LinkTitle }}</span>
   {{- else }}
-  <a href="{{ .RelPermalink }}" class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ .LinkTitle }}</a>
+  <a href="{{ .RelPermalink }}" class="{{ $size }} font-medium rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ .LinkTitle }}</a>
   {{- end }}
   {{- end }}
 </div>

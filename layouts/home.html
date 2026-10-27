@@ -1,0 +1,46 @@
+{{ define "main" }}
+{{- /* Главная: автор, теги и свежие заметки из params.mainSections */}}
+{{- $sections := site.Params.mainSections | default (slice) }}
+{{- $pages := where site.RegularPages "Section" "in" $sections }}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  {{- /* Описание главной (content/_index.md), иначе общее описание сайта; имя сайта уже в шапке */}}
+  <h1 class="sr-only">{{ site.Title }}</h1>
+  <div class="flex items-start gap-6 sm:gap-12 mb-10">
+    {{- with .Description | default site.Params.description }}
+    <p class="max-w-3xl text-xl sm:text-3xl leading-snug sm:leading-snug text-gray-900 dark:text-white">{{ . }}</p>
+    {{- end }}
+    {{- with site.Params.homeAvatar | default site.Params.avatar }}
+    <img src="{{ . | relURL }}" alt="" class="shrink-0 h-20 w-20 sm:h-36 sm:w-36 lg:h-44 lg:w-44 rounded-full object-cover">
+    {{- end }}
+  </div>
+
+  {{- with .Content }}
+  <div class="prose dark:prose-invert max-w-none mb-6">{{ . }}</div>
+  {{- end }}
+
+  {{- /* Теги разделов из mainSections: таксономия раздела называется <раздел>tags */}}
+  {{- $terms := slice }}
+  {{- range $sections }}
+  {{- with index site.Taxonomies (printf "%stags" .) }}
+  {{- range .Alphabetical }}{{ $terms = $terms | append .Page }}{{ end }}
+  {{- end }}
+  {{- end }}
+  {{- with $terms }}
+  <div class="mb-10">{{ partial "tag-pills.html" (dict "terms" . "large" true) }}</div>
+  {{- end }}
+
+  {{- with $pages.ByDate.Reverse | first (site.Params.homeLimit | default 12) }}
+  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Свежие заметки</h2>
+  {{ partial "post-grid.html" . }}
+  {{- end }}
+
+  {{- /* «Ещё» ведёт в первый раздел из mainSections, если на главную влезли не все заметки */}}
+  {{- if gt (len $pages) (site.Params.homeLimit | default 12) }}
+  {{- with site.GetPage (printf "/%s" (index $sections 0)) }}
+  <div class="mt-10 flex justify-center">
+    <a href="{{ .RelPermalink }}" class="px-5 py-2 rounded-full bg-gray-100 dark:bg-neutral-900 text-gray-700 dark:text-gray-200 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900/40 dark:hover:text-primary-300 transition-colors">Ещё</a>
+  </div>
+  {{- end }}
+  {{- end }}
+</div>
+{{ end }}

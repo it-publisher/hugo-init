@@ -1,3 +1,5 @@
+{{- /* params.robots, например "noindex" — для разделов, доступных только по прямой ссылке */ -}}
+{{- with .Params.robots }}<meta name="robots" content="{{ . }}">{{ end }}
 {{- $description := .Description | default (.Summary | plainify | truncate 160) | default .Site.Params.description -}}
 {{- $title := .Title -}}
 {{- $image := "" -}}

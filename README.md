@@ -10,7 +10,7 @@
 - галереи из нескольких картинок, без зависимостей;
 - «Поделиться»: Телеграм, ВКонтакте, ссылка, системное меню на телефоне;
 - похожие заметки по общим тегам;
-- светлая и тёмная тема, кириллица в шрифте Inter;
+- светлая и тёмная тема, кириллица в шрифтах Inter (текст) и JetBrains Mono (код);
 - никаких внешних запросов: шрифты, скрипты и поиск лежат в теме.
 
 ---
@@ -41,7 +41,10 @@ defaultContentLanguage = "ru"
   author = "Имя Автора"
   description = "Описание сайта"
   avatar = "/images/avatar.jpg"
+  homeAvatar = "/images/avatar-large.jpg"   # крупное фото на главной, иначе avatar
   images = ["/images/preview.jpg"]   # превью ссылок по умолчанию
+  mainSections = ["blog"]             # разделы, чьи заметки на главной и в поиске
+  homeLimit = 12                      # сколько свежих заметок на главной
   search = true
   toc = true
   copyCodeButton = true
@@ -57,6 +60,19 @@ defaultContentLanguage = "ru"
 [markup.highlight]
   noClasses = false   # подсветка классами — для тёмной темы
   lineNos = false     # иначе копирование возьмёт номера строк
+```
+
+Раздел, доступный только по прямой ссылке: не включать его в `mainSections` и меню,
+а в `hugo.toml` закрыть от поисковиков и карты сайта:
+
+```toml
+[[cascade]]
+  [cascade.params]
+    robots = "noindex"
+  [cascade.sitemap]
+    disable = true
+  [cascade.target]
+    path = "{/hidden,/hidden/**,/hiddentags,/hiddentags/**}"
 ```
 
 «Похожие заметки» работают по таксономиям из `[related]`, см.
@@ -115,3 +131,4 @@ Tailwind — в `assets/css/custom.css`.
 | [Lunr](https://lunrjs.com/) 2.3.9 | MIT |
 | [lunr-languages](https://github.com/MihaiValentin/lunr-languages) 1.14.0 — русский стемминг | MPL 1.1 |
 | [Inter](https://rsms.me/inter/) через fontsource 5.2.6 | OFL 1.1 |
+| [JetBrains Mono](https://www.jetbrains.com/lp/mono/) через fontsource 5.3.0 | OFL 1.1 |

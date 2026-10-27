@@ -1,6 +1,6 @@
-{{- /* Индекс для поиска: заметки всех разделов с тегами из всех таксономий */ -}}
+{{- /* Индекс для поиска: заметки разделов из params.mainSections с тегами из всех таксономий */ -}}
 {{- $docs := slice }}
-{{- range where site.RegularPages "Kind" "page" }}
+{{- range where site.RegularPages "Section" "in" (site.Params.mainSections | default (slice)) }}
   {{- $tags := slice }}
   {{- range partial "post-terms.html" . }}{{ $tags = $tags | append .LinkTitle }}{{ end }}
   {{- $docs = $docs | append (dict "uri" .RelPermalink "title" .Title "content" .Plain "tags" $tags) }}

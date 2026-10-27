@@ -1,10 +1,8 @@
-<!-- TailwindCSS (pre-compiled via `npm run build-css`, see package.json —
-     Hugo only minifies/fingerprints the already-compiled output below; it
-     never invokes PostCSS/Node itself, so `hugo server`/`hugo build` has
-     no Node.js dependency at all once tailwind.built.css exists) -->
+<!-- Tailwind собран заранее скриптом build-css.sh: Hugo только минифицирует
+     готовый tailwind.built.css, Node и Tailwind для сборки сайта не нужны -->
 {{ $tailwind := resources.Get "css/tailwind.built.css" }}
 {{ if not $tailwind }}
-  {{ errorf "assets/css/tailwind.built.css not found — run `npm install && npm run build-css` first (see exampleSite/README or docs/installation)." }}
+  {{ errorf "assets/css/tailwind.built.css не найден — запустите themes/init/build-css.sh (см. README темы)" }}
 {{ end }}
 {{ if hugo.IsProduction }}
   {{ $tailwind = $tailwind | resources.Minify | resources.Fingerprint }}
